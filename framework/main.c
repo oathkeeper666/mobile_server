@@ -35,7 +35,7 @@ int main()
 
 	array_destroy(a);*/
 
-	
+#if 0	
 	list_t * list;
 	Stu *stu;
 
@@ -65,4 +65,38 @@ int main()
 	memory_statistic();
 
 	return 0;
+#endif
+	Stu *stu;
+	queue_t *q, *node;
+		
+	q = queue_create(sizeof(Stu));
+	if (NULL == q) {
+		printf("queue_create failed.\n");
+		exit(1);	
+	}
+
+	stu = (Stu *)queue_push(q, sizeof(Stu));
+	stu->num = 1;
+	stu->num2 = 2;
+	stu = (Stu *)queue_push(q, sizeof(Stu));
+	stu->num = 3;
+	stu->num2 = 4;
+	stu = (Stu *)queue_push(q, sizeof(Stu));
+	stu->num = 5;
+	stu->num2 = 6;
+	stu = (Stu *)queue_push(q, sizeof(Stu));
+	stu->num = 7;
+	stu->num2 = 8;
+	stu = (Stu *)queue_push(q, sizeof(Stu));
+	stu->num = 9;
+	stu->num2 = 10;
+	
+	for (node = q->next; node != queue_sentinel(q); node = node->next) {
+		Stu * t = (Stu *)node->data;
+		printf("num, num2: %d, %d\n", t->num, t->num2);
+	}
+
+	queue_destroy(q);	
+
+	memory_statistic();
 }

@@ -5,6 +5,7 @@
 #include "palloc.h"
 #include "array.h"
 #include "list.h"
+#include "queue.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
