@@ -18,7 +18,7 @@ queue_t * queue_create(size_t size)
 	return q;	
 }
 
-void * queue_push(queue_t *h, size_t size)
+queue_t * queue_push(queue_t *h, size_t size)
 {
 	queue_t *new;
 	
@@ -35,7 +35,7 @@ void * queue_push(queue_t *h, size_t size)
 
 	queue_insert_tail(h, new);
 	
-	return new->data;	
+	return new;	
 }
 
 void queue_destroy(queue_t *h)
@@ -44,7 +44,7 @@ void queue_destroy(queue_t *h)
 	
 	if (NULL == h) { return; }
 
-	last = queue_last(h)		
+	last = queue_last(h);	
 
 	while (h != last) {
 		q = h;
@@ -58,4 +58,31 @@ void queue_destroy(queue_t *h)
 	last->prev = NULL;
 	FREE(last->data);
 	FREE(last);
+}
+
+queue_t * queue_middle(queue_t *q)
+{
+	queue_t *middle, *next;
+	
+	middle = queue_head(q);
+	
+	if (middle == queue_last(q)) {
+		return middle;
+	}
+	
+	next = queue_head(q);
+
+	for ( ;; ) {	
+		next = queue_next(next);
+		if (next == queue_last(q)) {
+			return middle;
+		}
+		
+		middle = queue_next(middle);
+		next = queue_next(next);
+
+		if (next == queue_last(q)) {
+			return middle;
+		}		
+	}	
 }

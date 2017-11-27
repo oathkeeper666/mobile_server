@@ -32,19 +32,19 @@ struct queue_s {
 	(h)->prev = (x);	\
 
 #define queue_head(h)		\
-	(h)->next;
+	(h)->next
 
 #define queue_last(h)		\
-	(h)->prev;
+	(h)->prev
 
 #define queue_sentinel(h)	\
 	(h)
 
 #define queue_next(q)		\
-	(q)->next; 
+	(q)->next 
 
 #define queue_prev(q)		\
-	(q)->prev;
+	(q)->prev
 
 #define queue_remove(x)			\
 	(x)->next->prev = (x)->prev;	\
@@ -54,8 +54,10 @@ struct queue_s {
 
 queue_t * queue_create(size_t size);
 
-void * queue_push(queue_t *q, size_t size);
+queue_t * queue_push(queue_t *q, size_t size);
 
 void queue_destroy(queue_t *q);
+
+queue_t * queue_middle(queue_t *q);
 
 #endif /* _QUEUE_H */
