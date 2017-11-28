@@ -7,6 +7,7 @@
 #include "list.h"
 #include "queue.h"
 #include "buffer.h"
+#include "rbtree.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
