@@ -30,6 +30,10 @@ size_t buf_write_size(buf_t *b)
 {
 	if (NULL == b) return 0;
 
+	if (b->wpos == b->rpos && b->wpos != 0) {
+		return 0;
+	}
+
 	if (b->wpos >= b->rpos) {
 		return b->size - b->wpos + b->rpos;
 	}
@@ -42,7 +46,11 @@ size_t buf_read_size(buf_t *b)
 {
 	if (NULL == b) return 0;
 
-	if (b->rpos > b->wpos) {
+	if (b->rpos == b->wpos && b->rpos == 0) {
+		return 0;
+	}
+
+	if (b->rpos >= b->wpos) {
 		return b->size - b->rpos + b->wpos;
 	}
 	else {
@@ -62,7 +70,7 @@ size_t buf_write(buf_t *b, void *c, size_t size)
 	if (0 == size) return 0;
 
 	p = b->buf + b->wpos;
-	if (b->wpos >= b->rpos) {
+	if (b->wpos > b->rpos) {
 		n = MIN(b->size - b->wpos, wcnt);
 		memcpy(p, c, n);
 		b->wpos += n;
@@ -76,6 +84,8 @@ size_t buf_write(buf_t *b, void *c, size_t size)
 		memcpy(p, c, wcnt);
 		b->wpos += wcnt;	
 	}
+
+	b->wpos %= b->size;
 
 	return size;
 }
@@ -93,8 +103,8 @@ size_t buf_read(buf_t *b, void *c, size_t size)
 
 	p = b->buf + b->rpos;
 	if (b->wpos > b->rpos) {
-		b->rpos += rcnt;
 		memcpy(c, p, rcnt);
+		b->rpos += rcnt;
 	} 
 	else {
 		n = b->size - b->rpos;
@@ -106,6 +116,8 @@ size_t buf_read(buf_t *b, void *c, size_t size)
 			b->rpos += rcnt;
 		}
 	}
+	
+	b->rpos %= b->size;
 
 	return size;
 }
