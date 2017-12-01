@@ -20,8 +20,8 @@ static FILE * open_file(time_t now, const char *name)
 {	
 	char filename[FILENAME_LEN];
 	FILE *file;
-	struct tm t;
 	uint_t n;
+	struct tm t;
 
 	if (isatty(STDOUT_FILENO)) {
 		file = stdout;
