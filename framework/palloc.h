@@ -1,7 +1,6 @@
 #ifndef _PALLOC_H
 #define _PALLOC_H_
 
-#include <stdlib.h>
 #include "core.h"
 
 void *_malloc(size_t size);

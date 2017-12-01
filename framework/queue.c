@@ -1,4 +1,5 @@
 #include "queue.h"
+#include "palloc.h"
 
 queue_t * queue_create(size_t size)
 {

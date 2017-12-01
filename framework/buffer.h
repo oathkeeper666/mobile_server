@@ -2,7 +2,6 @@
 #define _BUF_H
 
 #include "core.h"
-#include "config.h"
 
 typedef struct buf_t {
 	void 	*buf;

@@ -1,6 +1,4 @@
 #include "times.h"
-#include <sys/time.h>
-#include <time.h>
 
 static ulong_t current_msec;
 static char fmt_time[TIME_LEN];

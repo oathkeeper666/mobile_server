@@ -1,6 +1,5 @@
 #include "shm.h"
-#include <sys/mman.h>
-#include <string.h>
+#include "palloc.h"
 
 shm_t * shm_create(const char *name, size_t size)
 {

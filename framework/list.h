@@ -2,7 +2,6 @@
 #define _LIST_H
 
 #include "core.h"
-#include "config.h"
 
 typedef struct list_node_s list_node_t;
 

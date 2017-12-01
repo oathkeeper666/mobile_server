@@ -2,7 +2,6 @@
 #define _TIMES_H
 
 #include "core.h"
-#include "config.h"
 
 void time_init();
 

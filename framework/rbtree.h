@@ -2,7 +2,6 @@
 #define _RBTREE_H
 
 #include "core.h"
-#include "config.h"
 
 typedef uint_t rbtree_key_t;
 typedef int_t rbtree_key_int_t;

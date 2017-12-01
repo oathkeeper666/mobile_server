@@ -1,4 +1,5 @@
 #include "list.h"
+#include "palloc.h"
 
 list_t *list_create(uint_t n, size_t size)
 {

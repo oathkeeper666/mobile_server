@@ -1,6 +1,4 @@
 #include "palloc.h"
-#include <stdlib.h>
-#include <stdio.h>
 
 static unsigned long g_malloc_count = 0;
 static unsigned long g_realloc_count = 0;

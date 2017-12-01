@@ -1,9 +1,5 @@
 #include "log.h"
-#include <unistd.h>
-#include <time.h>
-#include <string.h>
-#include <stdarg.h>
-#include <sys/time.h>
+#include "palloc.h"
 
 #define STD_STREAM(f) ((f) == stdout || (f) == stdin || (f) == stderr)
 

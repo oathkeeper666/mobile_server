@@ -1,7 +1,6 @@
 #ifndef _SHM_H
 #define _SHM_H
 
-#include "config.h"
 #include "core.h"
 
 typedef struct shm_t {

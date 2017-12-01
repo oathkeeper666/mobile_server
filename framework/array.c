@@ -1,5 +1,5 @@
 #include "array.h"
-#include <string.h>
+#include "palloc.h"
 
 array_t *array_create(uint_t n, size_t size)
 {

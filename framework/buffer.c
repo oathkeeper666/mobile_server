@@ -1,5 +1,5 @@
 #include "buffer.h"
-#include <string.h>
+#include "palloc.h"
 
 #define ALIGN(n) (((n) + 3) & ~3)
 

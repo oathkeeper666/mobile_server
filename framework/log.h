@@ -2,9 +2,6 @@
 #define _LOG_H
 
 #include "core.h"
-#include "config.h"
-
-#include <stdio.h>
 
 #define LOG_DEBUG             0
 #define LOG_INFO              1
