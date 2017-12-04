@@ -1,2 +1,4 @@
 *.o
-All
+bin/*
+lib/
+thirdpart/mxml.h

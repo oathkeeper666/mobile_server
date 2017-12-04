@@ -1,16 +1,6 @@
 #ifndef _CORE_H
 #define _CORE_H
 
-/*#include "palloc.h"
-#include "array.h"
-#include "list.h"
-#include "queue.h"
-#include "buffer.h"
-#include "rbtree.h"
-#include "log.h"
-#include "times.h"
-#include "shm.h"*/
-
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
@@ -32,5 +22,8 @@ typedef long 		long_t;
 
 #define FILENAME_LEN 256
 #define TIME_LEN 256
+
+#define TRUE 1
+#define FALSE 0
 
 #endif /* _CORE_H */

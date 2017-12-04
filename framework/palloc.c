@@ -48,6 +48,6 @@ void *_calloc(size_t n, size_t size)
 
 void memory_statistic()
 {
-	printf("malloc count is %d, realloc count is %d, calloc count is %d, free count is %d.\n", 
+	printf("malloc count is %ld, realloc count is %ld, calloc count is %ld, free count is %ld.\n", 
 		g_malloc_count, g_realloc_count, g_calloc_count, g_free_count);	
 }

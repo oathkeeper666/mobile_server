@@ -38,7 +38,6 @@ static FILE * open_file(time_t now, const char *name)
 logger * log_open(const char *name, uint_t level)
 {
 	logger *log;
-	FILE *file;
 	time_t now;
 
 	log = MALLOC(sizeof(logger));
