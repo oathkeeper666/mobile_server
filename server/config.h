@@ -19,4 +19,9 @@ int_t get_server_id();
 
 int_t get_version();
 
+/* vary arguments end with NULL */
+const char * get_srv_cfg_text(const char * elem, ...);
+
+const char * get_srv_cfg_attr(const char * name, const char * elem, ...);
+
 #endif /* _CONFIG_H */
