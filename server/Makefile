@@ -18,7 +18,7 @@ LINK=gcc -o
 CFLAG += -g -Wall -D_DEBUG  -I../thirdpart -I../framework
 LIBS += -L../lib/ -lmxml -lpthread
  
-BIN=../bin/game
+BIN=../bin/server
 
 all : $(BIN)
 
