@@ -4,3 +4,5 @@
 (cd thirdpart/mxml && ./configure && make && cp -v libmxml.a ../../lib/ && cp -v mxml.h ../)
 
 (cd server && make clean && make)
+
+(mkdir log)

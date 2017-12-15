@@ -18,7 +18,7 @@ LINK=gcc -o
 CFLAG += -g -Wall -D_DEBUG  -I../thirdpart -I../framework
 LIBS += -L../lib/ -lmxml -lpthread
  
-BIN=../bin/server
+BIN=../bin/mobile_server
 
 all : $(BIN)
 

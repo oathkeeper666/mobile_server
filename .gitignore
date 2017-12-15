@@ -2,3 +2,4 @@
 bin/*
 lib/
 thirdpart/mxml.h
+log/

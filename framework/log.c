@@ -19,15 +19,14 @@ static FILE * open_file(time_t now, const char *name)
 	uint_t n;
 	struct tm t;
 
-	if (isatty(STDOUT_FILENO)) {
+	if (isatty(STDOUT_FILENO)) {		
 		file = stdout;
 	} else {
 		localtime_r(&now, &t);
 		strncpy(filename, name, FILENAME_LEN);
 		n = strlen(name);
-		sprintf(filename + n, "04%d02%d02%d_02%d", t.tm_year + 1900, 
+		sprintf(filename + n, "_%04d%02d%02d_%02d.log", t.tm_year + 1900, 
 			t.tm_mon + 1, t.tm_mday, t.tm_hour);
-
 
 		file = fopen(filename, "a");
 	}
@@ -54,6 +53,10 @@ logger * log_open(const char *name, uint_t level)
 	SET_LEVEL(log, level);
 
 	log->file = open_file(now, name);
+	if (NULL == log->file) {
+		log_close(log);
+		log = NULL;		
+	}
 
 	return log;
 }
@@ -93,7 +96,7 @@ static void writev(logger *log, uint_t level, const char *fmt, va_list args)
 	/* reopen */	
 	if (time.tv_sec - log->time >= 60 * 60 || (STD_STREAM(log->file) && !isatty(STDOUT_FILENO))) {
 		file = open_file(time.tv_sec, log->name);
-		if (file) {
+		if (file) {	
 			if (log->file && !STD_STREAM(log->file)) {
 				fclose(log->file);
 			}
