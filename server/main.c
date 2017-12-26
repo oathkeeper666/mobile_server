@@ -1,6 +1,7 @@
 #include "config.h"
 #include "process.h"
 #include "log.h"
+#include "cycle.h"
 
 static uint_t show_help;
 static uint_t show_version;
@@ -11,7 +12,7 @@ static uint_t process_signal;
 static uint_t process_options(int argc, const char *argv[]);
 static void show_help_info();
 static void show_version_info();
-static logger * init_debug();
+static logger * init_log();
 
 int main(int argc, const char *argv[])
 {
@@ -20,35 +21,45 @@ int main(int argc, const char *argv[])
 	if (process_options(argc, argv) != RET_OK) {
 		return 1;
 	}
-
 	if (show_help) {
 		show_help_info();
 		return 0;
 	}
-
 	if (show_version) {
 		show_version_info();
 		return 0;
 	}		
-
+	if (process_signal) {
+		master_signal(signal_name);
+		return 0;
+	}
 	if (run_deamon) {
 		if (daemon_process() == RET_ERROR) {
 			fprintf(stderr, "daemon_process failed.");
 			return 1;
 		}
-	}
+	}	
 	
-	log = init_debug();	
+	if (init_signals() == RET_ERROR) {
+		fprintf(stderr, "init signal handler failed.");
+		return 1;
+	}
+
+	log = init_log();	
 	if (NULL == log) {
 		fprintf(stderr, "init debug failed.\n");
 		return 1;
 	}		
-		
-	log_write(log, LOG_INFO, "hello server: %d", mobile_version);
-	
-	log_close(log);
 
-	while (1);
+	if (init_cycle(log) == RET_ERROR) {
+		log_write(log, LOG_ERR, "init cycle failed.");
+		log_close(log);
+		return 1;
+	}		
+	
+	master_process_cycle();
+
+	destroy_cycle();
 
 	return 0;
 }
@@ -89,7 +100,8 @@ static uint_t process_options(int argc, const char *argv[])
 
 				if (strncmp(signal_name, "stop", FILENAME_LEN) == 0
 					|| strncmp(signal_name, "quit", FILENAME_LEN) == 0 
-					|| strncmp(signal_name, "reload", FILENAME_LEN) == 0) {
+					|| strncmp(signal_name, "reload", FILENAME_LEN) == 0
+					|| strncmp(signal_name, "start", FILENAME_LEN) == 0) {
 					process_signal = 1;
 					goto next;
 				}
@@ -130,7 +142,7 @@ static void show_version_info()
 	fprintf(stderr, "version: %s\n", MOBILE_VERSION);
 }
 
-static logger * init_debug() 
+static logger * init_log() 
 {
 	logger *log;	
 	

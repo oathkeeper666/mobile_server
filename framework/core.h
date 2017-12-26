@@ -35,4 +35,7 @@ typedef long 		long_t;
 #define RET_OK 0
 #define RET_ERROR -1
 
+#define INVALID_PID -1
+#define INVALID_FD -1
+
 #endif /* _CORE_H */

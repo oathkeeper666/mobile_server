@@ -3,3 +3,4 @@ bin/*
 lib/
 thirdpart/mxml.h
 log/
+conf/*.pid

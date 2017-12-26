@@ -1,4 +1,5 @@
 #include "process.h"
+#include "files.h"
 
 uint_t reload_flag;
 uint_t quit_flag;
@@ -101,6 +102,31 @@ int_t daemon_process()
 	}*/
 
 	return RET_OK;	
+}
+
+int_t send_signal(pid_t pid, int signo)
+{
+	if (kill(pid, signo) == -1) {
+		return RET_ERROR;
+	}	
+	
+	return RET_OK;	
+}
+
+int_t master_signal(const char * name)
+{
+	int i;
+	pid_t pid;
+
+	pid = master_pid();
+	
+	for (i = 0; signals[i].signo != 0; ++i) {
+		if (strncmp(signals[i].signame, name, FILENAME_LEN) == 0) {					
+			return send_signal(pid, signals[i].signo);
+		}
+	}
+	
+	return RET_ERROR;
 }
 
 static void signal_handler(int signo, siginfo_t *info, void *ctx)
