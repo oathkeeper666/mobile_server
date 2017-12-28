@@ -58,6 +58,8 @@ logger * log_open(const char *name, uint_t level)
 		log = NULL;		
 	}
 
+	//setvbuf(log->file, NULL, _IOLBF, 0);
+
 	return log;
 }
 
@@ -111,6 +113,7 @@ static void writev(logger *log, uint_t level, const char *fmt, va_list args)
 	fprintf(log->file, "[%s] ", level_desc[level]);
 	vfprintf(log->file, fmt, args);
 	fprintf(log->file, "\n");
+	log_flush(log);
 }
 
 void log_write(logger *log, uint_t level, const char *fmt, ...)

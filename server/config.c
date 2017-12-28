@@ -1,144 +1,156 @@
 #include "config.h"
 #include "palloc.h"
 
-static srv_cfg_t *config = NULL;
+static void foreach_json(const cJSON *obj, srv_conf_t *config);
+static void parse_modules(const cJSON *obj, module_t **modules);
+static void parse_object(const cJSON *obj, srv_conf_t *config);
+static void parse_array(const cJSON *obj, srv_conf_t *config);
 
-srv_cfg_t * load_srv_cfg(const char * filepath)
+srv_conf_t * load_srv_cfg(const char *filepath)
 {
+	cJSON *obj;
 	FILE *file;
-	mxml_node_t *tree;
+	char str[4096];
+	srv_conf_t *config;
 
-	if (config) {
-		return config;
+	if (NULL == filepath) {
+		filepath = "../conf/conf.json";
 	}
 
 	file = fopen(filepath, "r");
 	if (NULL == file) {
+		fprintf(stderr, "open %s failed.\n", filepath);
 		return NULL;
 	}
 
-	tree = mxmlLoadFile(NULL, file, MXML_TEXT_CALLBACK);
-	if (NULL == tree) {
-		fclose(file);
+	memset(str, 0, sizeof(str));
+	fread(str, sizeof(str), 1, file);
+
+	obj = cJSON_Parse(str);
+	if (NULL == obj) {
+		fprintf(stderr, "parse json str error: %s\n", cJSON_GetErrorPtr());
 		return NULL;
 	}
 
-	config = MALLOC(sizeof(srv_cfg_t));
-	if (NULL == config) {
-		fclose(file);
-		mxmlDelete(tree);
-		return NULL;
-	}
+	config = (srv_conf_t *) MALLOC(sizeof(srv_conf_t));
+	memset(config, 0, sizeof(srv_conf_t));
+	foreach_json(obj, config);
 
-	memset(config, 0, sizeof(srv_cfg_t));
-
-	config->file = file;
-	config->tree = tree;
+	fclose(file);
+	cJSON_Delete(obj);
 
 	return config;
 }
 
-void free_src_cfg()
+void free_srv_config(srv_conf_t *config)
 {
+	uint_t i = 0;
+
 	if (config) {
-		if (config->file) fclose(config->file);
-		if (config->tree) mxmlDelete(config->tree);
-
+		for ( ; i < MAX_MODULE_NUM; i++) {
+			if (config->modules[i]) {
+				FREE(config->modules[i]);
+				config->modules[i] = NULL;
+			}
+		}
 		FREE(config);
-		config = NULL;
 	}
 }
 
-int_t get_server_id()
+static void foreach_json(const cJSON *obj, srv_conf_t *config)
 {
-	if (NULL == config || NULL == config->tree) {
-		return -1;
-	}
+	cJSON *p;
 
-	return (uint_t)atoi(mxmlElementGetAttr(config->tree, "id"));
-}
-
-int_t get_version()
-{
-	if (NULL == config || NULL == config->tree) {
-		return -1;
-	}
-
-	return (uint_t)atoi(mxmlElementGetAttr(config->tree, "version"));
-}
-
-static mxml_node_t * child_node(mxml_node_t *parent, const char * elem) 
-{
-	mxml_node_t *child;
-	const char * e;
-
-	child = mxmlGetFirstChild(parent);
-	for (; child; child = mxmlGetNextSibling(child)) {
-		e = mxmlGetElement(child);
-		if (e && strcmp(e, elem) == 0) {
-			return child;
+	cJSON_ArrayForEach(p, obj) {
+		if (p->type & cJSON_Array) {
+			parse_array(p, config);
+		} else if (p->type & cJSON_Object) {
+			parse_object(p, config);
+		} else if (p->type & cJSON_String) {
+			if (0 == strncmp(p->string, "logPath", 32)) {
+				strncpy(config->log_path, p->valuestring, FILENAME_LEN);
+			} else if (0 == strncmp(p->string, "luaPath", 32)) {
+				strncpy(config->lua_path, p->valuestring, FILENAME_LEN);
+			} else if (0 == strncmp(p->string, "sockPath", 32)) {
+				strncpy(config->sock_path, p->valuestring, FILENAME_LEN);
+			}
+		} else if (p->type & cJSON_Number) {
+			if (0 == strncmp(p->string, "serverId", 32)) {
+				config->server_id = (uint_t) p->valuedouble;
+			} else if (0 == strncmp(p->string, "port", 32)) {
+				config->port = (uint_t) p->valuedouble;
+			}
 		}
 	}
-
-	return child;
 }
 
-static mxml_node_t * find_node(const char * elem, va_list args) 
+static void parse_array(const cJSON *obj, srv_conf_t *config) 
 {
-	const char *key;
-	mxml_node_t *node;
-
-	if (NULL == config || NULL == config->tree) {
-		return NULL;
+	if (0 == strncmp(obj->string, "modules", 32)) {
+		parse_modules(obj, config->modules);
 	}
-
-	node = child_node(config->tree, elem);
-	key = va_arg(args, const char *);
-	
-	while (node && key) {
-		node = child_node(node, key);
-		key = va_arg(args, const char *);
-	}
-
-	return node;
 }
 
-const char * get_srv_cfg_text(const char * elem, ...)
+static void parse_modules(const cJSON *obj, module_t **modules)
 {
-	va_list va;
-	mxml_node_t *node;
-	const char *text;
+	uint_t i;
+	cJSON *p, *pp;
+	module_t *m;
 
-	va_start(va, elem);
-	node = find_node(elem, va);
-	va_end(va);
-
-	if (node) {
-		text = mxmlGetText(node, 0);
+	i = 0;
+	cJSON_ArrayForEach(p, obj) {
+		if (p->type & cJSON_Object && i < MAX_MODULE_NUM) {
+			m = (module_t *) MALLOC(sizeof(module_t));
+			memset(m, 0, sizeof(module_t));
+			cJSON_ArrayForEach(pp, p) {
+				if (0 == strncmp(pp->string, "id", 32) && pp->type & cJSON_Number) {
+					m->id = (uint_t) pp->valuedouble;
+				} else if (0 == strncmp(pp->string, "name", 32) && pp->type & cJSON_String) {
+					strncpy(m->name, pp->valuestring, FILENAME_LEN);
+				} else if (0 == strncmp(pp->string, "min", 32) && pp->type & cJSON_Number) {
+					m->min = (uint_t) pp->valuedouble;
+				} else if (0 == strncmp(pp->string, "max", 32) && pp->type & cJSON_Number) {
+					m->max = (uint_t) pp->valuedouble;
+				} else if (0 == strncmp(pp->string, "sock", 32) && pp->type & cJSON_String) {
+					strncpy(m->sock, pp->valuestring, FILENAME_LEN);
+				}
+			}
+			modules[i++] = m;
+		}
 	}
-	else {
-		text = NULL;
-	}
-	
-	return text;
 }
 
-const char * get_srv_cfg_attr(const char * name, const char * elem, ...)
-{	
-	va_list va;
-	mxml_node_t *node;
-	const char *text;
+static void parse_object(const cJSON *obj, srv_conf_t *config)
+{
 
-	va_start(va, elem);
-	node = find_node(elem, va);
-	va_end(va);
+}
 
-	if (node) {
-		text = mxmlElementGetAttr(node, name);
+void print_config(srv_conf_t *config)
+{
+	uint_t i;
+	module_t *m;
+
+	if (config) {
+		printf("{\n");
+		printf("	\"serverId\": %u,\n", config->server_id);
+		printf("	\"logPath\": %s,\n", config->log_path);
+		printf("	\"luaPath\": %s,\n", config->lua_path);
+		printf("	\"sockPath\": %s,\n", config->sock_path);
+		printf("	\"port\": %d,\n", config->port);
+		printf("	\"modules\": [\n");
+		for (i = 0; i < MAX_MODULE_NUM; i++) {
+			if (config->modules[i]) {
+				m = config->modules[i];
+				printf("		{\n");
+				printf("			\"id\": %d,\n", m->id);
+				printf("			\"name\": %s,\n", m->name);
+				printf("			\"min\": %d,\n", m->min);
+				printf("			\"max\": %d,\n", m->max);
+				printf("			\"sock\": %s,\n", m->sock);
+				printf("		}\n");
+			}
+		}
+		printf("	]\n");
+		printf("}\n");
 	}
-	else {
-		text = NULL;
-	}
-	
-	return text;
 }

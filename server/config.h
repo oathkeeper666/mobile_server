@@ -2,26 +2,24 @@
 #define _CONFIG_H
 
 #include "core.h"
-#include "mxml.h"
+#include "module.h"
+#include "cJSON.h"
 
-typedef struct srv_cfg_s srv_cfg_t;
-struct srv_cfg_s
-{
-	FILE *		file;
-	mxml_node_t * 	tree;
-};
+#define MAX_MODULE_NUM 10
 
-srv_cfg_t * load_srv_cfg(const char * filepath);
+typedef struct srv_conf_t {
+	uint_t server_id;
+	char log_path[FILENAME_LEN];
+	char lua_path[FILENAME_LEN];
+	char sock_path[FILENAME_LEN];
+	uint_t port;
+	module_t *modules[MAX_MODULE_NUM];
+} srv_conf_t;
 
-void free_src_cfg();
+srv_conf_t * load_srv_cfg(const char *filepath);
 
-int_t get_server_id();
+void free_srv_config(srv_conf_t *config);
 
-int_t get_version();
-
-/* vary arguments end with NULL */
-const char * get_srv_cfg_text(const char * elem, ...);
-
-const char * get_srv_cfg_attr(const char * name, const char * elem, ...);
+void print_config(srv_conf_t *config);
 
 #endif /* _CONFIG_H */

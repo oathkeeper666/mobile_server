@@ -5,7 +5,7 @@
 #include "log.h"
 #include "process.h"
 
-static cycle_t *master_cycle;
+cycle_t *master_cycle;
 //static queue_t *worker_cycle_queue;
 
 //static void start_worker_process();
@@ -36,6 +36,13 @@ int_t init_cycle(logger *log)
 	return RET_OK;
 }
 
+void set_conf(srv_conf_t *c)
+{
+	if (master_cycle) {
+		master_cycle->conf = c;
+	}
+}
+
 void destroy_cycle()
 {
 	if (master_cycle) {
@@ -46,6 +53,10 @@ void destroy_cycle()
 		if (master_cycle->pid_fd != INVALID_FD) {
 			close(master_cycle->pid_fd);	
 		}
+		if (master_cycle->conf) {	
+			free_srv_config(master_cycle->conf);
+		}	
+
 		FREE(master_cycle);
 		master_cycle = NULL;
 	}
@@ -63,10 +74,7 @@ void master_process_cycle()
 	for ( ;; ) {
 		if (quit_flag || stop_flag) {
 			log_write(master_cycle->log, LOG_DEBUG, "%s: master process exit.", __FUNCTION__);	
-			log_flush(master_cycle->log);
-			destroy_cycle();	
-			memory_statistic();
-			exit(0);
+			break;
 		}
 		log_write(master_cycle->log, LOG_DEBUG, "%s: master running ...", __FUNCTION__);
 		sleep(1);	

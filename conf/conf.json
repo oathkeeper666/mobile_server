@@ -1,0 +1,23 @@
+{
+    "serverId": 100,
+    "logPath": "../log",
+    "luaPath": "../lua",
+    "sockPath": "../sock",
+    "port": 9001,
+    "modules": [
+        {
+            "id": 1,
+            "name": "chat",
+            "min": 1,
+            "max": 1000,
+            "sock": "chat"
+        },
+        {
+            "id": 2,
+            "name": "manor",
+            "min": 1001,
+            "max": 2000,
+            "sock": "manor"
+        }
+    ]
+}

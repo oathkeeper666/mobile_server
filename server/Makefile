@@ -10,6 +10,8 @@ COMMON_OBJ = ../framework/array.o \
 	../framework/shm.o \
 	../framework/times.o
 
+THIRD_OBJ = ../thirdpart/cJSON.o
+
 OBJ=$(patsubst ./%.c, ./%.o, $(wildcard ./*.c))
 
 COMPILE=gcc -c
@@ -22,7 +24,7 @@ BIN=../bin/mobile_server
 
 all : $(BIN)
 
-$(BIN):	$(COMMON_OBJ) $(OBJ)
+$(BIN):	$(COMMON_OBJ) $(OBJ) $(THIRD_OBJ)
 	$(LINK) $@ $^ $(LIBS)
 
 $(COMMON_OBJ): %.o : %.c
@@ -34,4 +36,4 @@ $(OBJ): %.o : %.c
 .PHONY: clean
 
 clean:
-	@rm $(BIN) $(COMMON_OBJ) $(OBJ) 
+	@rm $(BIN) $(COMMON_OBJ) $(OBJ) $(THIRD_OBJ) 
