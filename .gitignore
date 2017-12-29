@@ -1,6 +1,10 @@
 *.o
 bin/*
-lib/
-thirdpart/mxml.h
-log/
+lib/*
+log/*
 conf/*.pid
+include/mxml.h
+include/lauxlib.h
+include/lua.h
+include/luaconf.h
+include/lualib.h

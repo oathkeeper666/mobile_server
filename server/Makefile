@@ -10,14 +10,14 @@ COMMON_OBJ = ../framework/array.o \
 	../framework/shm.o \
 	../framework/times.o
 
-THIRD_OBJ = ../thirdpart/cJSON.o
+THIRD_OBJ = ../include/cJSON.o
 
 OBJ=$(patsubst ./%.c, ./%.o, $(wildcard ./*.c))
 
 COMPILE=gcc -c
 LINK=gcc -o
 
-CFLAG += -g -Wall -D_DEBUG  -I../thirdpart -I../framework
+CFLAG += -g -Wall -D_DEBUG  -I../include -I../framework
 LIBS += -L../lib/ -lmxml -lpthread
  
 BIN=../bin/mobile_server

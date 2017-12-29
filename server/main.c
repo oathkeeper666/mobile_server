@@ -14,7 +14,7 @@ static const char *conf_path;
 static uint_t process_options(int argc, const char *argv[]);
 static void show_help_info();
 static void show_version_info();
-static logger * init_log();
+static logger * init_log(const char *filepath);
 
 int main(int argc, const char *argv[])
 {
@@ -36,12 +36,18 @@ int main(int argc, const char *argv[])
 		master_signal(signal_name);
 		return 0;
 	}
+		
 	if (run_deamon) {
 		if (daemon_process() == RET_ERROR) {
 			fprintf(stderr, "daemon_process failed.\n");
 			return 1;
 		}
 	}	
+	
+	if (init_signals() == RET_ERROR) {
+		fprintf(stderr, "init signal handler failed.\n");
+		return 1;
+	}
 
 	conf = load_srv_cfg(conf_path);		
 	if (NULL == conf) {
@@ -49,20 +55,17 @@ int main(int argc, const char *argv[])
 		return 1;
 	}
 
-	if (init_signals() == RET_ERROR) {
-		fprintf(stderr, "init signal handler failed.\n");
-		return 1;
-	}
-
-	log = init_log();	
+	log = init_log(conf->log_path);	
 	if (NULL == log) {
 		fprintf(stderr, "init debug failed.\n");
+		free_srv_config(conf);
 		return 1;
 	}		
 
 	if (init_cycle(log) == RET_ERROR) {
 		log_write(log, LOG_ERR, "init cycle failed.");
 		log_close(log);
+		free_srv_config(conf);
 		return 1;
 	}		
 	set_conf(conf);	
@@ -170,11 +173,13 @@ static void show_version_info()
 	fprintf(stderr, "version: %s\n", MOBILE_VERSION);
 }
 
-static logger * init_log() 
+static logger * init_log(const char *filepath) 
 {
 	logger *log;	
-	
-	log = log_open("../log/master", LOG_DEBUG);
+	char file[256];
+
+	sprintf(file, "%s/master", filepath);	
+	log = log_open(file, LOG_DEBUG);
 	if (NULL == log) {
 		return NULL;
 	}
